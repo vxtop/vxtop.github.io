@@ -1,0 +1,147 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 · Copyright 2026 virtuanista -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>vxtop — a read-only 3D observatory of your computer</title>
+<meta name="description" content="Folders as data cubes, programs as cubes, live file activity coloured by who did it — you, other programs or an AI agent. Local, read-only, open source.">
+<meta property="og:title" content="vxtop">
+<meta property="og:description" content="A read-only 3D observatory of your computer.">
+<meta property="og:image" content="assets/hero.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#05080a; --bg2:#0b1115; --line:#16232a; --tx:#c9d3d8; --tx1:#eef3f5; --tx3:#7d8b92; --teal:#7fd6cf; --teal2:#4fb3ad; --amber:#e8a33d; --grey:#8fa6c8; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--tx); font:16px/1.65 Inter, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; }
+  code, pre { font-family:'JetBrains Mono', ui-monospace, Consolas, monospace; }
+  .wrap { max-width:1120px; margin:0 auto; padding:0 24px; }
+  nav { position:sticky; top:0; z-index:5; backdrop-filter:blur(10px); background:rgba(5,8,10,.75); border-bottom:1px solid var(--line); }
+  nav .wrap { display:flex; align-items:center; gap:24px; height:60px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.32em; color:var(--tx1); }
+  .brand img { width:26px; height:26px; }
+  nav .sp { flex:1; } nav a.l { color:var(--tx); font-size:14px; }
+  .lang { background:none; border:1px solid var(--line); color:var(--tx); border-radius:6px; padding:4px 10px; font:600 12px Inter, sans-serif; cursor:pointer; }
+  header { padding:84px 0 40px; text-align:center; position:relative; overflow:hidden; }
+  header:before { content:''; position:absolute; inset:-30% -10% auto; height:620px; background:radial-gradient(closest-side, rgba(79,179,173,.16), transparent 70%); pointer-events:none; }
+  h1 { font-size:clamp(34px, 5.4vw, 62px); line-height:1.08; letter-spacing:-.02em; color:var(--tx1); margin:0 auto 18px; max-width:880px; font-weight:700; }
+  h1 em { font-style:normal; background:linear-gradient(90deg, var(--teal), var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lead { font-size:clamp(17px, 2vw, 20px); color:var(--tx); max-width:720px; margin:0 auto 32px; }
+  .cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:9px; font-weight:600; font-size:15px; border:1px solid var(--line); color:var(--tx1); background:var(--bg2); }
+  .btn.p { background:var(--teal2); border-color:var(--teal2); color:#031012; } .btn:hover { text-decoration:none; filter:brightness(1.1); }
+  .shot { margin:48px auto 0; border-radius:14px; overflow:hidden; border:1px solid var(--line); box-shadow:0 30px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(127,214,207,.05); max-width:1080px; }
+  .shot img, .shot video { display:block; width:100%; height:auto; }
+  .who { display:flex; gap:22px; justify-content:center; flex-wrap:wrap; margin:22px 0 0; font-size:14px; color:var(--tx3); }
+  .who i { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:1px; }
+  section { padding:84px 0 20px; }
+  h2 { font-size:clamp(26px, 3.2vw, 36px); color:var(--tx1); letter-spacing:-.01em; margin:0 0 10px; }
+  .sub { color:var(--tx3); margin:0 0 36px; max-width:680px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+  .card { background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:22px; }
+  .card h3 { margin:12px 0 6px; font-size:17px; color:var(--tx1); }
+  .card p { margin:0; font-size:15px; color:var(--tx); }
+  .ico { width:34px; height:34px; border-radius:8px; display:grid; place-items:center; background:rgba(127,214,207,.08); color:var(--teal); font:600 15px 'JetBrains Mono', monospace; }
+  .ico.a { background:rgba(232,163,61,.1); color:var(--amber); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+  pre { background:#071014; border:1px solid var(--line); border-radius:10px; padding:18px 20px; overflow-x:auto; font-size:14px; line-height:1.7; color:var(--tx1); margin:0 0 14px; }
+  pre .c { color:var(--tx3); }
+  ul.k { list-style:none; padding:0; margin:0; } ul.k li { padding:10px 0 10px 30px; border-bottom:1px solid var(--line); position:relative; } ul.k li:before { content:'■'; position:absolute; left:4px; color:var(--teal2); font-size:11px; top:13px; }
+  .note { font-size:14px; color:var(--tx3); }
+  footer { margin-top:84px; border-top:1px solid var(--line); padding:32px 0 48px; color:var(--tx3); font-size:14px; }
+  footer .wrap { display:flex; gap:20px; flex-wrap:wrap; justify-content:space-between; }
+  [data-es] { display:none; } html[lang=es] [data-en] { display:none; } html[lang=es] [data-es] { display:revert; }
+  @media (max-width:760px) { .two { grid-template-columns:1fr; } nav a.l { display:none; } header { padding-top:56px; } }
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="#"><img src="assets/favicon.svg" alt="">VXTOP</a>
+  <span class="sp"></span>
+  <a class="l" href="#features"><span data-en>Features</span><span data-es>Qué hace</span></a>
+  <a class="l" href="#start"><span data-en>Get started</span><span data-es>Empezar</span></a>
+  <a class="l" href="#privacy"><span data-en>Privacy</span><span data-es>Privacidad</span></a>
+  <a class="l" href="https://github.com/vxtop/vxtop">GitHub</a>
+  <button class="lang" id="lang" aria-label="Language">ES</button>
+</div></nav>
+
+<header><div class="wrap">
+  <h1><span data-en>See what your computer is <em>doing</em>, not just what it holds.</span><span data-es>Mira lo que tu equipo está <em>haciendo</em>, no solo lo que guarda.</span></h1>
+  <p class="lead"><span data-en>vxtop is a read-only 3D observatory. Every folder is a cube of 27 cells, every open program another cube, and whatever is being used right now lights up and moves — by you, by other programs or by an AI agent like Claude Code.</span><span data-es>vxtop es un observatorio 3D de solo lectura. Cada carpeta es un cubo de 27 celdas, cada programa abierto otro cubo, y lo que se está usando ahora mismo se enciende y se mueve: lo que haces tú, lo que hacen otros programas o lo que hace un agente de IA como Claude Code.</span></p>
+  <div class="cta">
+    <a class="btn p" href="#start"><span data-en>Get started</span><span data-es>Empezar</span></a>
+    <a class="btn" href="https://github.com/vxtop/vxtop">★ GitHub</a>
+  </div>
+  <div class="shot"><video src="assets/demo.mp4" poster="assets/hero.png" autoplay muted loop playsinline aria-label="vxtop: folders and programs as 3D cubes, live"></video></div>
+  <div class="who"><span><i style="background:var(--amber)"></i>Claude</span><span><i style="background:var(--teal)"></i><span data-en>you</span><span data-es>tú</span></span><span><i style="background:var(--grey)"></i><span data-en>other programs</span><span data-es>otros programas</span></span></div>
+</div></header>
+
+<section id="features"><div class="wrap">
+  <h2><span data-en>One space for everything that happens</span><span data-es>Un espacio para todo lo que pasa</span></h2>
+  <p class="sub"><span data-en>File managers show where things are. vxtop shows what is happening — at a glance, in a space you can orbit, zoom and click.</span><span data-es>Un explorador enseña dónde están las cosas. vxtop enseña qué está pasando, de un vistazo, en un espacio que se gira, se acerca y se pulsa.</span></p>
+  <div class="grid">
+    <div class="card"><div class="ico">27</div><h3><span data-en>Folders as data cubes</span><span data-es>Carpetas como cubos de datos</span></h3><p><span data-en>File type × depth × age in 27 cells. Size, recency and activity without opening anything.</span><span data-es>Tipo de archivo × profundidad × antigüedad en 27 celdas. Tamaño, recencia y actividad sin abrir nada.</span></p></div>
+    <div class="card"><div class="ico a">●</div><h3><span data-en>Live, by who</span><span data-es>En vivo, y quién</span></h3><p><span data-en>Only what is in use now. Every moving dot is a real file event, coloured by who did it.</span><span data-es>Solo lo que se usa ahora. Cada punto que viaja es un archivo tocado de verdad, del color de quien lo tocó.</span></p></div>
+    <div class="card"><div class="ico">▣</div><h3><span data-en>Programs as cubes</span><span data-es>Programas como cubos</span></h3><p><span data-en>Size is memory, lit cells are CPU, with the real app icon. The one in front of you glows amber.</span><span data-es>El tamaño es la memoria, las celdas encendidas la CPU, con su icono real. El que tienes delante brilla en ámbar.</span></p></div>
+    <div class="card"><div class="ico">◱</div><h3><span data-en>Hover to peek</span><span data-es>Pasa el cursor y mira</span></h3><p><span data-en>Point at a folder: the windows of the programs using it and the images, videos and texts being touched.</span><span data-es>Señala una carpeta: las ventanas de los programas que la usan y las imágenes, vídeos y textos que se tocan.</span></p></div>
+    <div class="card"><div class="ico a">✦</div><h3><span data-en>Follows AI agents</span><span data-es>Sigue a los agentes de IA</span></h3><p><span data-en>What Claude Code sessions read, search and write, file by file. An MCP server lets an AI observe too.</span><span data-es>Qué leen, buscan y escriben las sesiones de Claude Code, archivo a archivo. Con servidor MCP para que una IA también observe.</span></p></div>
+    <div class="card"><div class="ico">⌥</div><h3><span data-en>Five views</span><span data-es>Cinco vistas</span></h3><p><span data-en>Space, System (processes and network), a 3D task manager, a Tree like <code>tree</code> and a file viewer for code, media, PDF and 3D.</span><span data-es>Espacio, Sistema (procesos y red), un administrador de tareas en 3D, un Árbol como <code>tree</code> y un visor de código, medios, PDF y 3D.</span></p></div>
+  </div>
+</div></section>
+
+<section id="start"><div class="wrap two">
+  <div>
+    <h2><span data-en>Get started</span><span data-es>Empezar</span></h2>
+    <p class="sub"><span data-en>You need Node.js 18.15+ and Chrome or Edge. Windows is the most complete platform; Linux works.</span><span data-es>Necesitas Node.js 18.15 o superior y Chrome o Edge. Windows es la plataforma más completa; Linux funciona.</span></p>
+<pre><span class="c"># <span data-en>live view of the whole machine</span><span data-es>vista en vivo de todo el equipo</span></span>
+npx github:vxtop/vxtop
+
+<span class="c"># <span data-en>a project and its subfolders</span><span data-es>un proyecto y sus subcarpetas</span></span>
+npx github:vxtop/vxtop ./my-project --expand
+
+<span class="c"># <span data-en>try it without showing your files</span><span data-es>pruébalo sin enseñar tus archivos</span></span>
+git clone https://github.com/vxtop/vxtop && cd vxtop
+npm run demo</pre>
+    <p class="note"><span data-en>On Windows, double-click <code>vxtop.vbs</code> for a console-free app window.</span><span data-es>En Windows, doble clic en <code>vxtop.vbs</code>: ventana propia y sin consola.</span></p>
+  </div>
+  <div>
+    <h2><span data-en>Controls</span><span data-es>Controles</span></h2>
+    <ul class="k">
+      <li><span data-en><b>One click</b> selects, centres and opens</span><span data-es><b>Un clic</b> selecciona, centra y abre</span></li>
+      <li><span data-en><b>Hover</b> shows what is in use there</span><span data-es><b>El cursor encima</b> muestra lo que se usa ahí</span></li>
+      <li><span data-en><b>Drag</b> orbits · <b>right-drag</b> pans · <b>wheel</b> zooms</span><span data-es><b>Arrastrar</b> gira · <b>clic derecho</b> desplaza · <b>rueda</b> acerca</span></li>
+      <li><code>H</code> <span data-en>frame all</span><span data-es>encuadrar</span> · <code>V</code> <span data-en>System</span><span data-es>Sistema</span> · <code>T</code> <span data-en>Tasks</span><span data-es>Tareas</span> · <code>A</code> <span data-en>Tree</span><span data-es>Árbol</span> · <code>?</code> <span data-en>help</span><span data-es>ayuda</span></li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="privacy"><div class="wrap">
+  <h2><span data-en>It only looks</span><span data-es>Solo mira</span></h2>
+  <p class="sub"><span data-en>vxtop never creates, changes or deletes anything it observes, and never acts on processes or the system.</span><span data-es>vxtop nunca crea, cambia ni borra nada de lo que observa y nunca actúa sobre procesos ni sobre el sistema.</span></p>
+  <div class="grid">
+    <div class="card"><h3><span data-en>Local only</span><span data-es>Solo en tu equipo</span></h3><p><span data-en>Listens on 127.0.0.1, every call carries a session token, nothing is sent anywhere.</span><span data-es>Escucha en 127.0.0.1, cada consulta lleva un token de sesión y nada sale de tu equipo.</span></p></div>
+    <div class="card"><h3><span data-en>Your screen stays yours</span><span data-es>Tu pantalla es tuya</span></h3><p><span data-en>Live images of your windows are off until you allow them.</span><span data-es>Las imágenes en vivo de tus ventanas están apagadas hasta que las permites.</span></p></div>
+    <div class="card"><h3><span data-en>Least privilege</span><span data-es>Mínimos permisos</span></h3><p><span data-en>Runs without administrator rights; more data only if you ask, and still read-only.</span><span data-es>Funciona sin administrador; más datos solo si lo pides, y sigue siendo de solo lectura.</span></p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <span>vxtop · Apache License 2.0 · © 2026 virtuanista</span>
+  <span><a href="https://github.com/vxtop/vxtop">GitHub</a> · <a href="https://github.com/vxtop/vxtop/blob/main/docs/en/guide.md">Guide</a> · <a href="https://github.com/vxtop/vxtop/blob/main/docs/guia.md">Guía</a></span>
+</div></footer>
+
+<script>
+  // language: Spanish for Spanish browsers, English otherwise; the button toggles and remembers
+  (function () {
+    var b = document.getElementById('lang'), saved = null; try { saved = localStorage.getItem('vxtop.lang'); } catch (e) {}
+    function set(l) { document.documentElement.lang = l; b.textContent = l === 'es' ? 'EN' : 'ES'; try { localStorage.setItem('vxtop.lang', l); } catch (e) {} }
+    set(saved || (/^es\b/i.test(navigator.language) ? 'es' : 'en'));
+    b.onclick = function () { set(document.documentElement.lang === 'es' ? 'en' : 'es'); };
+  })();
+</script>
+</body>
+</html>
