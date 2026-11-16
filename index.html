@@ -1,13 +1,13 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: Apache-2.0 · Copyright 2026 virtuanista -->
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>vxtop — a read-only 3D observatory of your computer</title>
-<meta name="description" content="Folders as data cubes, programs as cubes, live file activity coloured by who did it — you, other programs or an AI agent. Local, read-only, open source.">
+<title>vxtop — un observatorio 3D de tu equipo, de solo lectura</title>
+<meta name="description" content="Carpetas como cubos de datos, programas como cubos y la actividad de archivos en vivo coloreada según quién la hace: tú, otros programas o un agente de IA. Local, de solo lectura y de código abierto.">
 <meta property="og:title" content="vxtop">
-<meta property="og:description" content="A read-only 3D observatory of your computer.">
+<meta property="og:description" content="Un observatorio 3D de tu equipo, de solo lectura.">
 <meta property="og:image" content="assets/hero.png">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -135,11 +135,11 @@ npm run demo</pre>
 </div></footer>
 
 <script>
-  // language: Spanish for Spanish browsers, English otherwise; the button toggles and remembers
+  // language: Spanish by default; the button switches to English and remembers the choice
   (function () {
     var b = document.getElementById('lang'), saved = null; try { saved = localStorage.getItem('vxtop.lang'); } catch (e) {}
     function set(l) { document.documentElement.lang = l; b.textContent = l === 'es' ? 'EN' : 'ES'; try { localStorage.setItem('vxtop.lang', l); } catch (e) {} }
-    set(saved || (/^es\b/i.test(navigator.language) ? 'es' : 'en'));
+    set(saved || 'es');
     b.onclick = function () { set(document.documentElement.lang === 'es' ? 'en' : 'es'); };
   })();
 </script>
